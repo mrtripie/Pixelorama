@@ -1,0 +1,127 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://assets/graphics/tools/pan.png" type="Texture" id=1]
+[ext_resource path="res://assets/graphics/tools/zoom.png" type="Texture" id=2]
+[ext_resource path="res://src/UI/Canvas/Navigation.gd" type="Script" id=3]
+[ext_resource path="res://assets/graphics/tools/rotate.png" type="Texture" id=4]
+
+[node name="Navigation" type="VBoxContainer"]
+margin_right = 24.0
+margin_bottom = 80.0
+mouse_filter = 0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rotate" type="Button" parent="." groups=[
+"UIButtons",
+]]
+margin_right = 24.0
+margin_bottom = 24.0
+hint_tooltip = "Rotate
+
+Hold and move left or right to rotate the canvas.
+
+Right click to reset rotation."
+mouse_filter = 1
+mouse_default_cursor_shape = 10
+size_flags_vertical = 3
+keep_pressed_outside = true
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="TextureRect" type="TextureRect" parent="Rotate"]
+anchor_left = 0.5
+anchor_top = 0.497027
+anchor_right = 0.5
+anchor_bottom = 0.497027
+margin_left = -11.0
+margin_top = -11.0
+margin_right = 11.0
+margin_bottom = 11.0
+mouse_filter = 2
+texture = ExtResource( 4 )
+stretch_mode = 4
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
+[node name="Zoom" type="Button" parent="." groups=[
+"UIButtons",
+]]
+margin_top = 28.0
+margin_right = 24.0
+margin_bottom = 52.0
+hint_tooltip = "Zoom
+
+Hold and move up or down to zoom in/out the canvas.
+
+Right click to fit zoom to frame
+Ctrl Right click to set zoom to 100%"
+mouse_filter = 1
+mouse_default_cursor_shape = 9
+size_flags_vertical = 3
+keep_pressed_outside = true
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="TextureRect" type="TextureRect" parent="Zoom"]
+anchor_left = 0.5
+anchor_top = 0.497027
+anchor_right = 0.5
+anchor_bottom = 0.497027
+margin_left = -11.0
+margin_top = -11.0
+margin_right = 11.0
+margin_bottom = 11.0
+mouse_filter = 2
+texture = ExtResource( 2 )
+stretch_mode = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Pan" type="Button" parent="." groups=[
+"UIButtons",
+]]
+margin_top = 56.0
+margin_right = 24.0
+margin_bottom = 80.0
+hint_tooltip = "Pan
+
+Hold and move in any direction to pan around the canvas.
+
+Right click to reset pan."
+mouse_filter = 1
+mouse_default_cursor_shape = 13
+size_flags_vertical = 3
+keep_pressed_outside = true
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="TextureRect" type="TextureRect" parent="Pan"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -11.0
+margin_top = -11.0
+margin_right = 11.0
+margin_bottom = 11.0
+mouse_filter = 2
+texture = ExtResource( 1 )
+stretch_mode = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="button_down" from="Rotate" to="." method="_on_Rotate_button_down"]
+[connection signal="button_up" from="Rotate" to="." method="_on_Rotate_button_up"]
+[connection signal="button_down" from="Zoom" to="." method="_on_Zoom_button_down"]
+[connection signal="button_up" from="Zoom" to="." method="_on_Zoom_button_up"]
+[connection signal="button_down" from="Pan" to="." method="_on_Pan_button_down"]
+[connection signal="button_up" from="Pan" to="." method="_on_Pan_button_up"]

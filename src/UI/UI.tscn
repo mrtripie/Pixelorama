@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://src/UI/ToolButtons.gd" type="Script" id=1]
 [ext_resource path="res://src/UI/Canvas/CanvasPreview.tscn" type="PackedScene" id=2]
@@ -13,6 +13,7 @@
 [ext_resource path="res://assets/graphics/tools/shading.png" type="Texture" id=11]
 [ext_resource path="res://assets/graphics/tools/linetool.png" type="Texture" id=12]
 [ext_resource path="res://assets/graphics/tools/rectangletool.png" type="Texture" id=13]
+[ext_resource path="res://src/UI/Canvas/Navigation.tscn" type="PackedScene" id=14]
 [ext_resource path="res://assets/graphics/tools/ellipseselect.png" type="Texture" id=15]
 [ext_resource path="res://src/UI/CanvasPreviewContainer.tscn" type="PackedScene" id=16]
 [ext_resource path="res://src/UI/ColorAndToolOptions.tscn" type="PackedScene" id=17]
@@ -1142,6 +1143,15 @@ current = true
 zoom = Vector2( 0.15, 0.15 )
 script = ExtResource( 7 )
 
+[node name="Navigation" parent="ToolsAndCanvas/CanvasAndTimeline/ViewportAndRulers/HSplitContainer/ViewportandVerticalRuler/ViewportContainer" instance=ExtResource( 14 )]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 0.041
+margin_left = -24.0
+margin_top = 8.0
+margin_right = 0.0
+margin_bottom = 69.058
+
 [node name="ViewportContainer2" type="ViewportContainer" parent="ToolsAndCanvas/CanvasAndTimeline/ViewportAndRulers/HSplitContainer"]
 margin_left = 896.0
 margin_right = 896.0
@@ -1164,6 +1174,17 @@ material = SubResource( 3 )
 current = true
 zoom = Vector2( 0.15, 0.15 )
 script = ExtResource( 7 )
+
+[node name="Navigation" parent="ToolsAndCanvas/CanvasAndTimeline/ViewportAndRulers/HSplitContainer/ViewportContainer2" instance=ExtResource( 14 )]
+visible = false
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 0.041
+margin_left = -24.0
+margin_top = 8.0
+margin_right = 0.0
+margin_bottom = 69.058
+is_camera2 = true
 
 [node name="AnimationTimeline" parent="ToolsAndCanvas/CanvasAndTimeline" instance=ExtResource( 18 )]
 margin_top = 532.0
