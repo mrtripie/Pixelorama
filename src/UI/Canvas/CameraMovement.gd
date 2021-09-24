@@ -11,6 +11,7 @@ var drag := false
 
 
 func _ready() -> void:
+	rotating = true
 	viewport_container = get_parent().get_parent()
 	transparent_checker = get_parent().get_node("TransparentChecker")
 	tween = Tween.new()
@@ -18,21 +19,46 @@ func _ready() -> void:
 	tween.connect("tween_step", self, "_on_tween_step")
 	update_transparent_checker_offset()
 
+	# signals regarding rotation stats
+	Global.rotation_level_button.connect("pressed",self,"rotation_button_pressed")
+	Global.rotation_level_spinbox.connect("value_changed", self, "rotation_value_changed")
+	Global.rotation_level_spinbox.get_child(0).connect("focus_exited", self, "rotation_focus_exited")
+
 	# signals regarding zoom stats
-	Global.zoom_level_label.connect("gui_input",self,"zoom_label_clicked")
+	Global.zoom_level_button.connect("pressed",self,"zoom_button_pressed")
 	Global.zoom_level_spinbox.connect("value_changed", self, "zoom_value_changed")
 	Global.zoom_level_spinbox.max_value = 100.0/zoom_min.x
 	Global.zoom_level_spinbox.get_child(0).connect("focus_exited", self, "zoom_focus_exited")
 
 
-func zoom_label_clicked(event :InputEvent):
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
-		if event.doubleclick:
-			Global.zoom_level_label.visible = false
-			Global.zoom_level_spinbox.visible = true
-			Global.zoom_level_spinbox.editable = true
-			Global.zoom_level_spinbox.value = str2var(Global.zoom_level_label.text.replace("%",""))
-			Global.zoom_level_spinbox.get_child(0).grab_focus() #since the actual lineedit is the first child of spinbox
+func rotation_button_pressed():
+	Global.rotation_level_button.visible = false
+	Global.rotation_level_spinbox.visible = true
+	Global.rotation_level_spinbox.editable = true
+	Global.rotation_level_spinbox.value = str2var(Global.rotation_level_button.text.replace("°",""))
+	Global.rotation_level_spinbox.get_child(0).grab_focus() #since the actual lineedit is the first child of spinbox
+
+
+func rotation_value_changed(value):
+	if name == "Camera2D":
+		set_camera_rotation_degrees(-value) # Negative makes going up rotate clockwise
+
+
+func rotation_focus_exited():
+	if Global.rotation_level_spinbox.value != rotation: #If user pressed enter while editing
+		if name == "Camera2D":
+			set_camera_rotation_degrees(-Global.rotation_level_spinbox.value) # Negative makes going up rotate clockwise
+	Global.rotation_level_button.visible = true
+	Global.rotation_level_spinbox.visible = false
+	Global.rotation_level_spinbox.editable = false
+
+
+func zoom_button_pressed():
+	Global.zoom_level_button.visible = false
+	Global.zoom_level_spinbox.visible = true
+	Global.zoom_level_spinbox.editable = true
+	Global.zoom_level_spinbox.value = str2var(Global.zoom_level_button.text.replace("%",""))
+	Global.zoom_level_spinbox.get_child(0).grab_focus() #since the actual lineedit is the first child of spinbox
 
 
 func zoom_value_changed(value):
@@ -44,7 +70,7 @@ func zoom_focus_exited():
 	if Global.zoom_level_spinbox.value != round(100 / zoom.x): #If user pressed enter while editing
 		if name == "Camera2D":
 			zoom_camera_percent(Global.zoom_level_spinbox.value)
-	Global.zoom_level_label.visible = true
+	Global.zoom_level_button.visible = true
 	Global.zoom_level_spinbox.visible = false
 	Global.zoom_level_spinbox.editable = false
 
@@ -136,7 +162,7 @@ func process_direction_action_pressed(event: InputEvent) -> void:
 	Global.key_move_press_time[dir] += increment
 	var this_direction_press_time : float = Global.key_move_press_time[dir]
 	var move_speed := dir_move_zoom_multiplier(this_direction_press_time)
-	offset = offset + move_speed * increment * directional_sign_multipliers[dir].rotated(global_rotation) * zoom
+	offset = offset + move_speed * increment * directional_sign_multipliers[dir].rotated(rotation) * zoom
 	update_rulers()
 	update_transparent_checker_offset()
 
@@ -168,9 +194,9 @@ func _input(event : InputEvent) -> void:
 			else:
 				zoom_camera(-1)
 		elif event is InputEventPanGesture: # Pan Gesture on a Latop touchpad
-			offset = offset + event.delta.rotated(global_rotation) * zoom * 7 # for moving the canvas
+			offset = offset + event.delta.rotated(rotation) * zoom * 7 # for moving the canvas
 		elif event is InputEventMouseMotion && drag:
-			offset = offset - event.relative.rotated(global_rotation) * zoom
+			offset = offset - event.relative.rotated(rotation) * zoom
 			update_transparent_checker_offset()
 			update_rulers()
 		elif is_action_direction_pressed(event):
@@ -180,6 +206,36 @@ func _input(event : InputEvent) -> void:
 
 		save_values_to_project()
 
+# Rotate Camera
+func rotate_camera_around_point(degrees: float, point: Vector2) -> void:
+	offset = (offset - point).rotated(deg2rad(round(degrees))) + point
+	rotation_degrees = wrapi(round(rotation_degrees + degrees), -180, 180)
+	rotation_changed()
+# Possible tweening stuff if wanted smooth rotate (should work)
+#	var new_rotation := round(rotation_degrees + degrees)
+#	tween.interpolate_property(self, "rotation_degrees", rotation_degrees, new_rotation, 0.05, Tween.TRANS_LINEAR, Tween.EASE_IN)
+#	tween.start()
+#	# note that on_treen_step would need rotation_changed() if doing this
+
+func set_camera_rotation_degrees(degrees: float) -> void:
+	var difference :=  degrees - rotation_degrees 
+	var canvas_center := Global.current_project.size / 2
+	offset = (offset - canvas_center).rotated(deg2rad(round(difference))) + canvas_center
+	rotation_degrees = wrapi(round(degrees), -180, 180)
+	rotation_changed()
+# Possible tweening stuff if wanted smooth rotate (needs work)
+#	var rot_offset := rotation_degrees - wrapf(rotation_degrees, 0, 360)
+#	var new_rotation := round(rot_offset + wrapf(degrees, 0, 360))
+#	tween.interpolate_property(self, "rotation_degrees", rotation_degrees, new_rotation, 0.05, Tween.TRANS_LINEAR, Tween.EASE_IN)
+#	tween.start()
+#	# note that on_treen_step would need rotation_changed() if doing this
+
+func rotation_changed() -> void:
+	if name == "Camera2D":
+		# Negative to make going up in value clockwise, and match the spinbox which does the same
+		Global.rotation_level_button.text = str(wrapi(round(-rotation_degrees), -180, 180)) + " °"
+		print(-rotation_degrees)
+
 
 # Zoom Camera
 func zoom_camera(dir : int) -> void:
@@ -188,7 +244,7 @@ func zoom_camera(dir : int) -> void:
 		var zoom_margin = zoom * dir / 5
 		var new_zoom = zoom + zoom_margin
 		if new_zoom > zoom_min && new_zoom < zoom_max:
-			var new_offset = offset + (-0.5 * viewport_size + mouse_pos) * (zoom - new_zoom)
+			var new_offset = offset + (-0.5 * viewport_size + mouse_pos).rotated(rotation) * (zoom - new_zoom)
 			tween.interpolate_property(self, "zoom", zoom, new_zoom, 0.05, Tween.TRANS_LINEAR, Tween.EASE_IN)
 			tween.interpolate_property(self, "offset", offset, new_offset, 0.05, Tween.TRANS_LINEAR, Tween.EASE_IN)
 			tween.start()
@@ -202,7 +258,7 @@ func zoom_camera(dir : int) -> void:
 		if zoom > zoom_max:
 			zoom = zoom_max
 
-		offset = offset + (-0.5 * viewport_size + mouse_pos) * (prev_zoom - zoom)
+		offset = offset + (-0.5 * viewport_size + mouse_pos).rotated(rotation) * (prev_zoom - zoom)
 		zoom_changed()
 
 func zoom_camera_percent(value :float):
@@ -213,12 +269,12 @@ func zoom_camera_percent(value :float):
 		tween.start()
 	else:
 		zoom = new_zoom
-	zoom_changed()
+		zoom_changed()
 
 func zoom_changed() -> void:
 	update_transparent_checker_offset()
 	if name == "Camera2D":
-		Global.zoom_level_label.text = str(round(100 / zoom.x)) + " %"
+		Global.zoom_level_button.text = str(round(100 / zoom.x)) + " %"
 		Global.canvas.pixel_grid.update()
 		update_rulers()
 		for guide in Global.current_project.guides:
@@ -237,6 +293,7 @@ func update_rulers() -> void:
 
 func _on_tween_step(_object: Object, _key: NodePath, _elapsed: float, _value: Object) -> void:
 	zoom_changed()
+
 
 
 func zoom_100() -> void:

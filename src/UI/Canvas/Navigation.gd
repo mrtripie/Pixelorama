@@ -15,19 +15,25 @@ func _ready():
 
 # NOTE: Rotation is messing up:
 #   - The zooming to cursor position whith scroll wheel!
+#   - Each drawing should have their own rotation
 #   - Zoom to fit
 #   - Rulers
 # Rotation could also use:
-#   - A degrees label next to the zoom label at the top (maybe also editable)
-#   - Snapping to 15 degree increments
+#   - Should the transparent checkers rotate too? (many other software don't)
 #   - Anti Aliasing
+#   - Possibly smooth rotate (though tricky due to it being cyclic)
+
+
+# Nav Icons todo:
+#   - Snapping rotation to 15 degree increments
+#   - Rounding rotation causes it to not move when going slowly...
+
 
 # NOTE: Make sure whatever you do that the rulers are updated!
 func _gui_input(event):
 		if event is InputEventMouseMotion:
 			if rotate:
-				camera.rotating = true # TODO: Make this part of the scene probably?
-				camera.rotate(event.relative.x / -20)
+				camera.rotate_camera_around_point(event.relative.x / -5, Global.current_project.size / 2)
 
 			elif zoom:
 				# Zoom into the center of the screen
@@ -43,7 +49,7 @@ func _gui_input(event):
 				camera.zoom_changed()
 
 			elif drag:
-				camera.offset -= camera.zoom * event.relative.rotated(camera.global_rotation)
+				camera.offset -= camera.zoom * event.relative.rotated(camera.rotation)
 				camera.update_transparent_checker_offset()
 				camera.update_rulers()
 
@@ -51,7 +57,7 @@ func _gui_input(event):
 			touchscreen_or_tablet = event.device == -1
 			if event.button_index == BUTTON_RIGHT and event.pressed:
 				if $Rotate.get_rect().has_point(get_local_mouse_position()):
-					camera.rotation = 0
+					camera.set_camera_rotation_degrees(0)
 				elif $Zoom.get_rect().has_point(get_local_mouse_position()):
 					if Input.is_key_pressed(KEY_CONTROL):
 						camera.zoom_100()
