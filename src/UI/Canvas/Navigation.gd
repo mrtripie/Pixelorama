@@ -14,15 +14,7 @@ func _ready():
 
 
 # NOTE: Rotation is messing up:
-#   - The zooming to cursor position whith scroll wheel!
-#   - Each drawing should have their own rotation
-#   - Zoom to fit
 #   - Rulers
-# Rotation could also use:
-#   - Should the transparent checkers rotate too? (many other software don't)
-#   - Anti Aliasing
-#   - Possibly smooth rotate (though tricky due to it being cyclic)
-
 
 # Nav Icons todo:
 #   - Snapping rotation to 15 degree increments

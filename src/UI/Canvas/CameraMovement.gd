@@ -211,11 +211,6 @@ func rotate_camera_around_point(degrees: float, point: Vector2) -> void:
 	offset = (offset - point).rotated(deg2rad(round(degrees))) + point
 	rotation_degrees = wrapi(round(rotation_degrees + degrees), -180, 180)
 	rotation_changed()
-# Possible tweening stuff if wanted smooth rotate (should work)
-#	var new_rotation := round(rotation_degrees + degrees)
-#	tween.interpolate_property(self, "rotation_degrees", rotation_degrees, new_rotation, 0.05, Tween.TRANS_LINEAR, Tween.EASE_IN)
-#	tween.start()
-#	# note that on_treen_step would need rotation_changed() if doing this
 
 func set_camera_rotation_degrees(degrees: float) -> void:
 	var difference :=  degrees - rotation_degrees 
@@ -223,12 +218,6 @@ func set_camera_rotation_degrees(degrees: float) -> void:
 	offset = (offset - canvas_center).rotated(deg2rad(round(difference))) + canvas_center
 	rotation_degrees = wrapi(round(degrees), -180, 180)
 	rotation_changed()
-# Possible tweening stuff if wanted smooth rotate (needs work)
-#	var rot_offset := rotation_degrees - wrapf(rotation_degrees, 0, 360)
-#	var new_rotation := round(rot_offset + wrapf(degrees, 0, 360))
-#	tween.interpolate_property(self, "rotation_degrees", rotation_degrees, new_rotation, 0.05, Tween.TRANS_LINEAR, Tween.EASE_IN)
-#	tween.start()
-#	# note that on_treen_step would need rotation_changed() if doing this
 
 func rotation_changed() -> void:
 	if name == "Camera2D":
@@ -303,6 +292,20 @@ func zoom_100() -> void:
 
 
 func fit_to_frame(size : Vector2) -> void:
+	offset = size / 2
+
+	# Adjust to the rotated size:
+	if rotation != 0.0:
+		# Calculating the rotated corners of the frame to find its rotated size
+		var a:= Vector2.ZERO # Top left
+		var b:= Vector2(size.x, 0).rotated(rotation) # Top right
+		var c:= Vector2(0, size.y).rotated(rotation) # Bottom left
+		var d:= Vector2(size.x, size.y).rotated(rotation) # Bottom right
+
+		# Find how far apart each opposite point is on each axis, and take the longer one
+		size.x = max(abs(a.x - d.x), abs(b.x - c.x))
+		size.y = max(abs(a.y - d.y), abs(b.y - c.y))
+
 	viewport_container = get_parent().get_parent()
 	var h_ratio := viewport_container.rect_size.x / size.x
 	var v_ratio := viewport_container.rect_size.y / size.y
@@ -322,7 +325,6 @@ func fit_to_frame(size : Vector2) -> void:
 
 	ratio = clamp(ratio, 0.1, ratio)
 	zoom = Vector2(1 / ratio, 1 / ratio)
-	offset = size / 2
 	zoom_changed()
 
 
