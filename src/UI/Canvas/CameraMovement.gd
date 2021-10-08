@@ -208,22 +208,22 @@ func _input(event : InputEvent) -> void:
 
 # Rotate Camera
 func rotate_camera_around_point(degrees: float, point: Vector2) -> void:
-	offset = (offset - point).rotated(deg2rad(round(degrees))) + point
-	rotation_degrees = wrapi(round(rotation_degrees + degrees), -180, 180)
+	offset = (offset - point).rotated(deg2rad(degrees)) + point
+	rotation_degrees = wrapf(rotation_degrees + degrees, -180, 180)
 	rotation_changed()
 
 func set_camera_rotation_degrees(degrees: float) -> void:
 	var difference :=  degrees - rotation_degrees 
 	var canvas_center := Global.current_project.size / 2
-	offset = (offset - canvas_center).rotated(deg2rad(round(difference))) + canvas_center
-	rotation_degrees = wrapi(round(degrees), -180, 180)
+	offset = (offset - canvas_center).rotated(deg2rad(difference)) + canvas_center
+	rotation_degrees = wrapf(degrees, -180, 180)
 	rotation_changed()
 
 func rotation_changed() -> void:
 	if name == "Camera2D":
 		# Negative to make going up in value clockwise, and match the spinbox which does the same
 		Global.rotation_level_button.text = str(wrapi(round(-rotation_degrees), -180, 180)) + " °"
-		print(-rotation_degrees)
+		print(rotation_degrees)
 
 
 # Zoom Camera

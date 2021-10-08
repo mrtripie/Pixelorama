@@ -15,6 +15,7 @@ func _ready():
 
 # NOTE: Rotation is messing up:
 #   - Rulers
+#   - Moving selections with arrow keys
 
 # Nav Icons todo:
 #   - Snapping rotation to 15 degree increments
@@ -88,6 +89,7 @@ func _on_Pan_button_down():
 
 func _on_Rotate_button_up():
 	rotate = false
+	camera.set_camera_rotation_degrees(round(camera.rotation_degrees))
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 #	warp_mouse($Rotate.rect_position + $Rotate.rect_size / 2)
 
