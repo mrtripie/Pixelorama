@@ -195,6 +195,9 @@ func _input(event : InputEvent) -> void:
 				zoom_camera(-1)
 		elif event is InputEventPanGesture: # Pan Gesture on a Latop touchpad
 			offset = offset + event.delta.rotated(rotation) * zoom * 7 # for moving the canvas
+			if OS.get_name() == "Android":
+				return
+			offset = offset + event.delta * zoom * 7 # for moving the canvas
 		elif event is InputEventMouseMotion && drag:
 			offset = offset - event.relative.rotated(rotation) * zoom
 			update_transparent_checker_offset()
