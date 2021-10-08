@@ -15,7 +15,6 @@ func _ready():
 
 # NOTE: Rotation is messing up:
 #   - Rulers
-#   - Moving selections with arrow keys
 
 # Nav Icons todo:
 #   - Snapping rotation to 15 degree increments
