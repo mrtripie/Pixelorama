@@ -31,7 +31,7 @@ func _ready() -> void:
 	Global.zoom_level_spinbox.get_child(0).connect("focus_exited", self, "zoom_focus_exited")
 
 
-func rotation_button_pressed():
+func rotation_button_pressed() -> void:
 	Global.rotation_level_button.visible = false
 	Global.rotation_level_spinbox.visible = true
 	Global.rotation_level_spinbox.editable = true
@@ -39,12 +39,12 @@ func rotation_button_pressed():
 	Global.rotation_level_spinbox.get_child(0).grab_focus() #since the actual lineedit is the first child of spinbox
 
 
-func rotation_value_changed(value):
+func rotation_value_changed(value) -> void:
 	if name == "Camera2D":
 		set_camera_rotation_degrees(-value) # Negative makes going up rotate clockwise
 
 
-func rotation_focus_exited():
+func rotation_focus_exited() -> void:
 	if Global.rotation_level_spinbox.value != rotation: #If user pressed enter while editing
 		if name == "Camera2D":
 			set_camera_rotation_degrees(-Global.rotation_level_spinbox.value) # Negative makes going up rotate clockwise
@@ -53,7 +53,7 @@ func rotation_focus_exited():
 	Global.rotation_level_spinbox.editable = false
 
 
-func zoom_button_pressed():
+func zoom_button_pressed() -> void:
 	Global.zoom_level_button.visible = false
 	Global.zoom_level_spinbox.visible = true
 	Global.zoom_level_spinbox.editable = true
@@ -61,12 +61,12 @@ func zoom_button_pressed():
 	Global.zoom_level_spinbox.get_child(0).grab_focus() #since the actual lineedit is the first child of spinbox
 
 
-func zoom_value_changed(value):
+func zoom_value_changed(value) -> void:
 	if name == "Camera2D":
 		zoom_camera_percent(value)
 
 
-func zoom_focus_exited():
+func zoom_focus_exited() -> void:
 	if Global.zoom_level_spinbox.value != round(100 / zoom.x): #If user pressed enter while editing
 		if name == "Camera2D":
 			zoom_camera_percent(Global.zoom_level_spinbox.value)
@@ -253,7 +253,8 @@ func zoom_camera(dir : int) -> void:
 		offset = offset + (-0.5 * viewport_size + mouse_pos).rotated(rotation) * (prev_zoom - zoom)
 		zoom_changed()
 
-func zoom_camera_percent(value :float):
+
+func zoom_camera_percent(value : float) -> void:
 	var percent :float = (100.0 / value)
 	var new_zoom = Vector2(percent, percent)
 	if Global.smooth_zoom:
@@ -262,6 +263,7 @@ func zoom_camera_percent(value :float):
 	else:
 		zoom = new_zoom
 		zoom_changed()
+
 
 func zoom_changed() -> void:
 	update_transparent_checker_offset()
