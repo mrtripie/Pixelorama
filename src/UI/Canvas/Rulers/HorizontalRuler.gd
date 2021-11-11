@@ -81,10 +81,6 @@ func _on_HorizontalRuler_pressed() -> void:
 		guide.type = guide.Types.VERTICAL
 		guide.add_point(Vector2(Global.canvas.current_pixel.x, -19999))
 		guide.add_point(Vector2(Global.canvas.current_pixel.x, 19999))
-	# This can be safely deleted I think...
-#	if guide.points.size() < 2:
-#		guide.queue_free()
-#		return
 	Global.canvas.add_child(guide)
 	Global.has_focus = false
 	update()

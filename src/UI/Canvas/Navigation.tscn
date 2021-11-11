@@ -14,9 +14,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Rotate" type="Button" parent="." groups=[
-"UIButtons",
-]]
+[node name="Rotate" type="Button" parent="." groups=["UIButtons"]]
 margin_right = 24.0
 margin_bottom = 24.0
 hint_tooltip = "Rotate
@@ -48,9 +46,7 @@ __meta__ = {
 "_edit_use_anchors_": true
 }
 
-[node name="Zoom" type="Button" parent="." groups=[
-"UIButtons",
-]]
+[node name="Zoom" type="Button" parent="." groups=["UIButtons"]]
 margin_top = 28.0
 margin_right = 24.0
 margin_bottom = 52.0
@@ -84,9 +80,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Pan" type="Button" parent="." groups=[
-"UIButtons",
-]]
+[node name="Pan" type="Button" parent="." groups=["UIButtons"]]
 margin_top = 56.0
 margin_right = 24.0
 margin_bottom = 80.0
