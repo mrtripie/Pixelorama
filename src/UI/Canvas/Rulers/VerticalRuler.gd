@@ -23,7 +23,17 @@ func _draw() -> void:
 	var zoom: float = 1 / Global.camera.zoom.x
 	transform.y = Vector2(zoom, zoom)
 
-	transform.origin = Global.main_viewport.rect_size / 2 + Global.camera.offset * -zoom
+	# This tracks the "true" top left corner of the drawing:
+	transform.origin = Global.main_viewport.rect_size / 2 + Global.camera.offset.rotated(-Global.camera.rotation) * -zoom
+
+	var proj_size := Global.current_project.size
+
+	# Calculating the rotated corners of the image, use min to find the top one
+	var a := Vector2.ZERO # Top left
+	var b := Vector2(proj_size.x, 0).rotated(-Global.camera.rotation) # Top right
+	var c := Vector2(0, proj_size.y).rotated(-Global.camera.rotation) # Bottom left
+	var d := Vector2(proj_size.x, proj_size.y).rotated(-Global.camera.rotation) # Bottom right
+	transform.origin.y += min(min(a.y, b.y), min(c.y, d.y)) * zoom
 
 	var basic_rule := 100.0
 	var i := 0
