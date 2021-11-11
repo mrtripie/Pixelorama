@@ -76,12 +76,18 @@ func _on_HorizontalRuler_pressed() -> void:
 	if mouse_pos.x < RULER_WIDTH: # For double guides
 		Global.vertical_ruler._on_VerticalRuler_pressed()
 	var guide := Guide.new()
-	guide.type = guide.Types.HORIZONTAL
-	guide.add_point(Vector2(-19999, Global.canvas.current_pixel.y))
-	guide.add_point(Vector2(19999, Global.canvas.current_pixel.y))
-	if guide.points.size() < 2:
-		guide.queue_free()
-		return
+	if abs(Global.camera.rotation_degrees) < 45 or abs(Global.camera.rotation_degrees) > 135:
+		guide.type = guide.Types.HORIZONTAL
+		guide.add_point(Vector2(-19999, Global.canvas.current_pixel.y))
+		guide.add_point(Vector2(19999, Global.canvas.current_pixel.y))
+	else:
+		guide.type = guide.Types.VERTICAL
+		guide.add_point(Vector2(Global.canvas.current_pixel.x, -19999))
+		guide.add_point(Vector2(Global.canvas.current_pixel.x, 19999))
+	# This can be safely deleted I think...
+#	if guide.points.size() < 2:
+#		guide.queue_free()
+#		return
 	Global.canvas.add_child(guide)
 	Global.has_focus = false
 	update()
