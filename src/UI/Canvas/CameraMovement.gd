@@ -226,7 +226,7 @@ func rotation_changed() -> void:
 	if name == "Camera2D":
 		# Negative to make going up in value clockwise, and match the spinbox which does the same
 		Global.rotation_level_button.text = str(wrapi(round(-rotation_degrees), -180, 180)) + " °"
-		print(rotation_degrees)
+		update_rulers()
 
 
 # Zoom Camera
