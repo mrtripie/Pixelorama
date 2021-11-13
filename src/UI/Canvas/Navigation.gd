@@ -12,13 +12,14 @@ var touchscreen_or_tablet:= false # Is a touchscreen or drawing tablet
 func _ready():
 	get_parent().connect("resized", self, "_parent_resized")
 
-
-# NOTE: Rotation is messing up:
-#   - Rulers
-
 # Nav Icons todo:
 #   - Snapping rotation to 15 degree increments
-#   - Rounding rotation causes it to not move when going slowly...
+#   - Option in the preferences to show/hide them
+#   - How is the best way to do the reset options (should they be combined into the single button,
+#         and how should they be interacted with without causing problems for users on touch screen for example?
+#   - Make sure it works nicely on mouse, touchpad, drawing tablet, and touchscreen
+#   - Preview dock
+#   - Cleanup
 
 
 # NOTE: Make sure whatever you do that the rulers are updated!
