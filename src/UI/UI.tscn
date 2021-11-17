@@ -1112,11 +1112,10 @@ script = ExtResource( 7 )
 [node name="Navigation" parent="ToolsAndCanvas/CanvasAndTimeline/ViewportAndRulers/HSplitContainer/ViewportandVerticalRuler/ViewportContainer" instance=ExtResource( 14 )]
 anchor_left = 1.0
 anchor_right = 1.0
-anchor_bottom = 0.041
-margin_left = -24.0
+margin_left = -44.0
 margin_top = 8.0
-margin_right = 0.0
-margin_bottom = 69.058
+margin_right = -8.0
+margin_bottom = 90.0
 
 [node name="ViewportContainer2" type="ViewportContainer" parent="ToolsAndCanvas/CanvasAndTimeline/ViewportAndRulers/HSplitContainer"]
 margin_left = 896.0
@@ -1145,12 +1144,10 @@ script = ExtResource( 7 )
 visible = false
 anchor_left = 1.0
 anchor_right = 1.0
-anchor_bottom = 0.041
-margin_left = -24.0
+margin_left = -44.0
 margin_top = 8.0
-margin_right = 0.0
-margin_bottom = 69.058
-is_camera2 = true
+margin_right = -8.0
+margin_bottom = 90.0
 
 [node name="AnimationTimeline" parent="ToolsAndCanvas/CanvasAndTimeline" instance=ExtResource( 18 )]
 margin_top = 532.0

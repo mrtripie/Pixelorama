@@ -1,4 +1,4 @@
-extends VBoxContainer
+extends PanelContainer
 
 export var is_camera2:= false
 onready var camera: Camera2D = Global.camera2 if is_camera2 else Global.camera
@@ -49,14 +49,14 @@ func _gui_input(event):
 		elif event is InputEventMouseButton:
 			touchscreen_or_tablet = event.device == -1
 			if event.button_index == BUTTON_RIGHT and event.pressed:
-				if $Rotate.get_rect().has_point(get_local_mouse_position()):
+				if $VBoxContainer/Rotate.get_rect().has_point(get_local_mouse_position()):
 					camera.set_camera_rotation_degrees(0)
-				elif $Zoom.get_rect().has_point(get_local_mouse_position()):
+				elif $VBoxContainer/Zoom.get_rect().has_point(get_local_mouse_position()):
 					if Input.is_key_pressed(KEY_CONTROL):
 						camera.zoom_100()
 					else:
 						camera.fit_to_frame(Global.current_project.size)
-				elif $Pan.get_rect().has_point(get_local_mouse_position()):
+				elif $VBoxContainer/Pan.get_rect().has_point(get_local_mouse_position()):
 					camera.offset = Global.current_project.size / 2
 
 
