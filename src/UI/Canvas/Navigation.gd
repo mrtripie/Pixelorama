@@ -1,7 +1,7 @@
-extends PanelContainer
+extends VBoxContainer
 
-export var is_camera2:= false
-onready var camera: Camera2D = Global.camera2 if is_camera2 else Global.camera
+export var camera_path: NodePath
+onready var camera: Camera2D = get_node(camera_path)
 
 var drag:= false # Could use CameraMovement.drag IF SET TO USE MOUSE RELATIVE (FOR TABLETS)
 var zoom:= false # Could maybe be replaced with a CameraMovement one for consistency?
@@ -49,19 +49,19 @@ func _gui_input(event):
 		elif event is InputEventMouseButton:
 			touchscreen_or_tablet = event.device == -1
 			if event.button_index == BUTTON_RIGHT and event.pressed:
-				if $VBoxContainer/Rotate.get_rect().has_point(get_local_mouse_position()):
+				if $Rotate.get_rect().has_point(get_local_mouse_position()):
 					camera.set_camera_rotation_degrees(0)
-				elif $VBoxContainer/Zoom.get_rect().has_point(get_local_mouse_position()):
+				elif $Zoom.get_rect().has_point(get_local_mouse_position()):
 					if Input.is_key_pressed(KEY_CONTROL):
 						camera.zoom_100()
 					else:
 						camera.fit_to_frame(Global.current_project.size)
-				elif $VBoxContainer/Pan.get_rect().has_point(get_local_mouse_position()):
+				elif $Pan.get_rect().has_point(get_local_mouse_position()):
 					camera.offset = Global.current_project.size / 2
 
 
 func _parent_resized():
-	visible = get_parent().rect_size.x > rect_size.x
+	visible = get_parent().rect_size.x > rect_size.x + 8
 
 
 func _on_Rotate_button_down():

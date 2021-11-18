@@ -280,9 +280,6 @@ func zoom_changed() -> void:
 
 		Global.canvas.selection.update_on_zoom(zoom.x)
 
-	elif name == "CameraPreview":
-		Global.preview_zoom_slider.value = -zoom.x
-
 
 func update_rulers() -> void:
 	Global.horizontal_ruler.update()

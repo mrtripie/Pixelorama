@@ -186,7 +186,6 @@ onready var merge_down_layer_button : BaseButton = animation_timeline.find_node(
 onready var layer_opacity_slider : HSlider = animation_timeline.find_node("OpacitySlider")
 onready var layer_opacity_spinbox : SpinBox = animation_timeline.find_node("OpacitySpinBox")
 
-onready var preview_zoom_slider : VSlider = control.find_node("PreviewZoomSlider")
 onready var palette_panel : PalettePanel = control.find_node("PalettePanel")
 
 onready var error_dialog : AcceptDialog = control.find_node("ErrorDialog")

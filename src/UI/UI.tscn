@@ -1116,6 +1116,7 @@ margin_left = -44.0
 margin_top = 8.0
 margin_right = -8.0
 margin_bottom = 90.0
+camera_path = NodePath("../Viewport/Camera2D")
 
 [node name="ViewportContainer2" type="ViewportContainer" parent="ToolsAndCanvas/CanvasAndTimeline/ViewportAndRulers/HSplitContainer"]
 margin_left = 896.0
@@ -1148,6 +1149,7 @@ margin_left = -44.0
 margin_top = 8.0
 margin_right = -8.0
 margin_bottom = 90.0
+camera_path = NodePath("../Viewport/Camera2D2")
 
 [node name="AnimationTimeline" parent="ToolsAndCanvas/CanvasAndTimeline" instance=ExtResource( 18 )]
 margin_top = 532.0
@@ -1187,7 +1189,7 @@ __meta__ = {
 
 [node name="PreviewAndPalettes" type="VBoxContainer" parent="RightPanel/MarginContainer"]
 margin_left = 8.0
-margin_right = 336.0
+margin_right = 348.0
 margin_bottom = 684.0
 custom_constants/separation = 8
 __meta__ = {
@@ -1195,22 +1197,23 @@ __meta__ = {
 }
 
 [node name="CanvasPreviewContainer" parent="RightPanel/MarginContainer/PreviewAndPalettes" instance=ExtResource( 16 )]
+margin_right = 340.0
 
 [node name="ToolAndPaletteVSplit" type="VSplitContainer" parent="RightPanel/MarginContainer/PreviewAndPalettes"]
 margin_top = 182.0
-margin_right = 328.0
+margin_right = 340.0
 margin_bottom = 684.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/autohide = 0
 
 [node name="ColorAndToolOptions" parent="RightPanel/MarginContainer/PreviewAndPalettes/ToolAndPaletteVSplit" instance=ExtResource( 17 )]
-margin_right = 328.0
+margin_right = 340.0
 margin_bottom = 372.0
 
 [node name="PalettePanel" parent="RightPanel/MarginContainer/PreviewAndPalettes/ToolAndPaletteVSplit" instance=ExtResource( 20 )]
 margin_top = 384.0
-margin_right = 328.0
+margin_right = 340.0
 margin_bottom = 502.0
 
 [connection signal="dragged" from="ToolsAndCanvas" to="ToolsAndCanvas/ToolPanel/MarginContainer/PanelContainer/ToolButtons" method="_on_ToolsAndCanvas_dragged"]

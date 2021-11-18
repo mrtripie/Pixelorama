@@ -1,15 +1,9 @@
 extends PanelContainer
 
 
-onready var canvas_preview = $HBoxContainer/PreviewViewportContainer/Viewport/CanvasPreview
-onready var camera : Camera2D = $HBoxContainer/PreviewViewportContainer/Viewport/CameraPreview
-onready var play_button : Button = $HBoxContainer/VBoxContainer/PlayButton
-
-
-func _on_PreviewZoomSlider_value_changed(value : float) -> void:
-	camera.zoom = -Vector2(value, value)
-	camera.save_values_to_project()
-	camera.update_transparent_checker_offset()
+onready var canvas_preview = $PreviewViewportContainer/Viewport/CanvasPreview
+onready var camera : Camera2D = $PreviewViewportContainer/Viewport/CameraPreview
+onready var play_button : Button = $PreviewViewportContainer/PlayButton
 
 
 func _on_PlayButton_toggled(button_pressed : bool) -> void:

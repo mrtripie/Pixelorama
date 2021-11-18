@@ -5,24 +5,16 @@
 [ext_resource path="res://src/UI/Canvas/Navigation.gd" type="Script" id=3]
 [ext_resource path="res://assets/graphics/tools/rotate.png" type="Texture" id=4]
 
-[node name="Navigation" type="PanelContainer"]
-margin_right = 36.0
-margin_bottom = 88.0
+[node name="Navigation" type="VBoxContainer"]
+margin_right = 32.0
+margin_bottom = 104.0
+mouse_filter = 0
 script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 39.0
-margin_bottom = 111.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Rotate" type="Button" parent="VBoxContainer" groups=["UIButtons"]]
+[node name="Rotate" type="Button" parent="." groups=["UIButtons"]]
 margin_right = 32.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 32, 32 )
@@ -39,7 +31,7 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="TextureRect" type="TextureRect" parent="VBoxContainer/Rotate"]
+[node name="TextureRect" type="TextureRect" parent="Rotate"]
 anchor_left = 0.5
 anchor_top = 0.497027
 anchor_right = 0.5
@@ -55,7 +47,7 @@ __meta__ = {
 "_edit_use_anchors_": true
 }
 
-[node name="Zoom" type="Button" parent="VBoxContainer" groups=["UIButtons"]]
+[node name="Zoom" type="Button" parent="." groups=["UIButtons"]]
 margin_top = 36.0
 margin_right = 32.0
 margin_bottom = 68.0
@@ -74,7 +66,7 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="TextureRect" type="TextureRect" parent="VBoxContainer/Zoom"]
+[node name="TextureRect" type="TextureRect" parent="Zoom"]
 anchor_left = 0.5
 anchor_top = 0.497027
 anchor_right = 0.5
@@ -90,7 +82,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Pan" type="Button" parent="VBoxContainer" groups=["UIButtons"]]
+[node name="Pan" type="Button" parent="." groups=["UIButtons"]]
 margin_top = 72.0
 margin_right = 32.0
 margin_bottom = 104.0
@@ -108,7 +100,7 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="TextureRect" type="TextureRect" parent="VBoxContainer/Pan"]
+[node name="TextureRect" type="TextureRect" parent="Pan"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -124,9 +116,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[connection signal="button_down" from="VBoxContainer/Rotate" to="." method="_on_Rotate_button_down"]
-[connection signal="button_up" from="VBoxContainer/Rotate" to="." method="_on_Rotate_button_up"]
-[connection signal="button_down" from="VBoxContainer/Zoom" to="." method="_on_Zoom_button_down"]
-[connection signal="button_up" from="VBoxContainer/Zoom" to="." method="_on_Zoom_button_up"]
-[connection signal="button_down" from="VBoxContainer/Pan" to="." method="_on_Pan_button_down"]
-[connection signal="button_up" from="VBoxContainer/Pan" to="." method="_on_Pan_button_up"]
+[connection signal="button_down" from="Rotate" to="." method="_on_Rotate_button_down"]
+[connection signal="button_up" from="Rotate" to="." method="_on_Rotate_button_up"]
+[connection signal="button_down" from="Zoom" to="." method="_on_Zoom_button_down"]
+[connection signal="button_up" from="Zoom" to="." method="_on_Zoom_button_up"]
+[connection signal="button_down" from="Pan" to="." method="_on_Pan_button_down"]
+[connection signal="button_up" from="Pan" to="." method="_on_Pan_button_up"]
