@@ -35,10 +35,10 @@ margin_left = 7.0
 margin_top = 7.0
 margin_right = 321.0
 margin_bottom = 167.0
-rect_min_size = Vector2( 290, 160 )
+rect_min_size = Vector2( 314, 160 )
 
 [node name="Viewport" type="Viewport" parent="PreviewViewportContainer"]
-size = Vector2( 290, 160 )
+size = Vector2( 314, 160 )
 transparent_bg = true
 handle_input_locally = false
 render_target_update_mode = 3
