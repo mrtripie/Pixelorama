@@ -69,7 +69,6 @@ func _frame_scroll_changed(value: float) -> void:
 
 
 func _on_LayerVBox_resized() -> void:
-	# TODO: BUG Layers resizing doesn't update the tags!
 	frame_scroll_bar.margin_left = frame_scroll_container.rect_position.x
 	tag_spacer.rect_min_size.x = (
 		frame_scroll_container.rect_global_position.x
@@ -562,8 +561,8 @@ func add_layer(type: int) -> void:
 			l = GroupLayer.new(project)
 
 	var cels := []
-	for f in project.frames:
-		cels.append(l.new_empty_cel(project.frames[f]))
+	for frame in project.frames:
+		cels.append(l.new_empty_cel(frame))
 
 	var new_layer_idx := project.current_layer + 1
 	if current_layer is GroupLayer:
@@ -824,9 +823,7 @@ func project_changed() -> void:
 	for i in project.layers.size():
 		project_layer_added(i)
 	for f in project.frames.size():
-		var button: Button = frame_button_node.instance()
-		button.frame = f
-		Global.frame_hbox.add_child(button)
+		Global.frame_hbox.add_child(project.frames[f].instantiate_frame_button())
 
 	# Press selected cel/frame/layer buttons
 	for cel_index in project.selected_cels:
@@ -849,8 +846,7 @@ func project_changed() -> void:
 
 func project_frame_added(frame: int) -> void:
 	var project: Project = Global.current_project
-	var button: Button = frame_button_node.instance()
-	button.frame = frame
+	var button: Button = project.frames[frame].instantiate_frame_button()
 	Global.frame_hbox.add_child(button)
 	Global.frame_hbox.move_child(button, frame)
 	frame_scroll_container.call_deferred(  # Make it visible, yes 3 call_deferreds are required
@@ -860,8 +856,6 @@ func project_frame_added(frame: int) -> void:
 	var layer := Global.cel_vbox.get_child_count() - 1
 	for cel_hbox in Global.cel_vbox.get_children():
 		var cel_button = project.frames[frame].cels[layer].instantiate_cel_button()
-		cel_button.frame = frame
-		cel_button.layer = layer
 		cel_hbox.add_child(cel_button)
 		cel_hbox.move_child(cel_button, frame)
 		layer -= 1
@@ -905,8 +899,6 @@ func project_layer_removed(layer: int) -> void:
 func project_cel_added(frame: int, layer: int) -> void:
 	var cel_hbox := Global.cel_vbox.get_child(Global.cel_vbox.get_child_count() - 1 - layer)
 	var cel_button = Global.current_project.frames[frame].cels[layer].instantiate_cel_button()
-	cel_button.frame = frame
-	cel_button.layer = layer
 	cel_hbox.add_child(cel_button)
 	cel_hbox.move_child(cel_button, frame)
 

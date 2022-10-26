@@ -144,6 +144,7 @@ var palettes := {}
 
 # Nodes
 var notification_label_node: PackedScene = preload("res://src/UI/NotificationLabel.tscn")
+var frame_button_node: PackedScene = preload("res://src/UI/Timeline/FrameButton.tscn")
 var pixel_layer_button_node: PackedScene = preload("res://src/UI/Timeline/PixelLayerButton.tscn")
 var group_layer_button_node: PackedScene = preload("res://src/UI/Timeline/GroupLayerButton.tscn")
 var pixel_cel_button_node: PackedScene = preload("res://src/UI/Timeline/PixelCelButton.tscn")
