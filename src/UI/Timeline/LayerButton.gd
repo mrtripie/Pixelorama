@@ -5,7 +5,7 @@ const HIERARCHY_DEPTH_PIXEL_SHIFT = 8
 
 export var hide_expand_button := true
 
-var layer := 0
+var layer: BaseLayer
 
 onready var expand_button: BaseButton = find_node("ExpandButton")
 onready var visibility_button: BaseButton = find_node("VisibilityButton")
@@ -19,8 +19,8 @@ onready var linked_button: BaseButton = find_node("LinkButton")
 func _ready() -> void:
 	rect_min_size.y = Global.animation_timeline.cel_size
 
-	label.text = Global.current_project.layers[layer].name
-	line_edit.text = Global.current_project.layers[layer].name
+	label.text = layer.name
+	line_edit.text = layer.name
 
 	var layer_buttons = find_node("LayerButtons")
 	for child in layer_buttons.get_children():
@@ -28,7 +28,7 @@ func _ready() -> void:
 		texture.modulate = Global.modulate_icon_color
 
 	# Visualize how deep into the hierarchy the layer is
-	var hierarchy_depth: int = Global.current_project.layers[layer].get_hierarchy_depth()
+	var hierarchy_depth: int = layer.get_hierarchy_depth()
 	hierarchy_spacer.rect_min_size.x = hierarchy_depth * HIERARCHY_DEPTH_PIXEL_SHIFT
 
 	if Global.control.theme.get_color("font_color", "Button").v > 0.5:  # Light text is dark theme
@@ -44,33 +44,33 @@ func update_buttons() -> void:
 		expand_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		expand_button.get_child(0).visible = false  # Hide the TextureRect
 	else:
-		if Global.current_project.layers[layer].expanded:
+		if layer.expanded:
 			Global.change_button_texturerect(expand_button.get_child(0), "group_expanded.png")
 		else:
 			Global.change_button_texturerect(expand_button.get_child(0), "group_collapsed.png")
 
-	if Global.current_project.layers[layer].visible:
+	if layer.visible:
 		Global.change_button_texturerect(visibility_button.get_child(0), "layer_visible.png")
 	else:
 		Global.change_button_texturerect(visibility_button.get_child(0), "layer_invisible.png")
 
-	if Global.current_project.layers[layer].locked:
+	if layer.locked:
 		Global.change_button_texturerect(lock_button.get_child(0), "lock.png")
 	else:
 		Global.change_button_texturerect(lock_button.get_child(0), "unlock.png")
 
 	if linked_button:
-		if Global.current_project.layers[layer].new_cels_linked:  # If new layers will be linked
+		if layer.new_cels_linked:  # If new layers will be linked
 			Global.change_button_texturerect(linked_button.get_child(0), "linked_layer.png")
 		else:
 			Global.change_button_texturerect(linked_button.get_child(0), "unlinked_layer.png")
 
 	visibility_button.modulate.a = 1
 	lock_button.modulate.a = 1
-	if is_instance_valid(Global.current_project.layers[layer].parent):
-		if not Global.current_project.layers[layer].parent.is_visible_in_hierarchy():
+	if is_instance_valid(layer.parent):
+		if not layer.parent.is_visible_in_hierarchy():
 			visibility_button.modulate.a = 0.33
-		if Global.current_project.layers[layer].parent.is_locked_in_hierarchy():
+		if layer.parent.is_locked_in_hierarchy():
 			lock_button.modulate.a = 0.33
 
 
@@ -78,7 +78,7 @@ func update_buttons() -> void:
 func _update_buttons_all_layers() -> void:
 	for layer_button in Global.layer_vbox.get_children():
 		layer_button.update_buttons()
-		var expanded = Global.current_project.layers[layer_button.layer].is_expanded_in_hierarchy()
+		var expanded = layer_button.layer.is_expanded_in_hierarchy()
 		layer_button.visible = expanded
 		Global.cel_vbox.get_child(layer_button.get_index()).visible = expanded
 
@@ -111,21 +111,21 @@ func _on_LayerContainer_gui_input(event: InputEvent) -> void:
 		Global.canvas.selection.transform_content_confirm()
 		var prev_curr_layer: int = project.current_layer
 		if Input.is_action_pressed("shift"):
-			var layer_diff_sign = sign(layer - prev_curr_layer)
+			var layer_diff_sign = sign(layer.index - prev_curr_layer)
 			if layer_diff_sign == 0:
 				layer_diff_sign = 1
 			for i in range(0, project.frames.size()):
-				for j in range(prev_curr_layer, layer + layer_diff_sign, layer_diff_sign):
+				for j in range(prev_curr_layer, layer.index + layer_diff_sign, layer_diff_sign):
 					var frame_layer := [i, j]
 					if !project.selected_cels.has(frame_layer):
 						project.selected_cels.append(frame_layer)
-			project.current_layer = layer
+			project.current_layer = layer.index
 		elif Input.is_action_pressed("ctrl"):
 			for i in range(0, project.frames.size()):
-				var frame_layer := [i, layer]
+				var frame_layer := [i, layer.index]
 				if !project.selected_cels.has(frame_layer):
 					project.selected_cels.append(frame_layer)
-			project.current_layer = layer
+			project.current_layer = layer.index
 		else:  # If the button is pressed without Shift or Control
 			_select_current_layer()
 
@@ -145,17 +145,17 @@ func _save_layer_name(new_name: String) -> void:
 	line_edit.visible = false
 	line_edit.editable = false
 	label.text = new_name
-	Global.current_project.layers[layer].name = new_name
+	layer.name = new_name
 
 
 func _on_ExpandButton_pressed():
-	Global.current_project.layers[layer].expanded = !Global.current_project.layers[layer].expanded
+	layer.expanded = !layer.expanded
 	_update_buttons_all_layers()
 
 
 func _on_VisibilityButton_pressed() -> void:
 	Global.canvas.selection.transform_content_confirm()
-	Global.current_project.layers[layer].visible = !Global.current_project.layers[layer].visible
+	layer.visible = !layer.visible
 	Global.canvas.update()
 	_select_current_layer()
 	_update_buttons_all_layers()
@@ -163,30 +163,29 @@ func _on_VisibilityButton_pressed() -> void:
 
 func _on_LockButton_pressed() -> void:
 	Global.canvas.selection.transform_content_confirm()
-	Global.current_project.layers[layer].locked = !Global.current_project.layers[layer].locked
+	layer.locked = !layer.locked
 	_select_current_layer()
 	_update_buttons_all_layers()
 
 
 func _on_LinkButton_pressed() -> void:
 	Global.canvas.selection.transform_content_confirm()
-	var layer_class: PixelLayer = Global.current_project.layers[layer]
-	layer_class.new_cels_linked = !layer_class.new_cels_linked
+	layer.new_cels_linked = !layer.new_cels_linked
 	update_buttons()
 
 
 func _select_current_layer() -> void:
 	Global.current_project.selected_cels.clear()
-	var frame_layer := [Global.current_project.current_frame, layer]
+	var frame_layer := [Global.current_project.current_frame, layer.index]
 	if !Global.current_project.selected_cels.has(frame_layer):
 		Global.current_project.selected_cels.append(frame_layer)
 
-	Global.current_project.current_layer = layer
+	Global.current_project.current_layer = layer.index
 
 
 func get_drag_data(_position) -> Array:
 	var layers := range(
-		layer - Global.current_project.layers[layer].get_child_count(true), layer + 1
+		layer.index - layer.get_child_count(true), layer.index + 1
 	)
 
 	var box := VBoxContainer.new()
@@ -198,35 +197,34 @@ func get_drag_data(_position) -> Array:
 		box.add_child(button)
 	set_drag_preview(box)
 
-	return ["Layer", layer]
+	return ["Layer", layer.index]
 
 
 func can_drop_data(_pos, data) -> bool:
 	if typeof(data) == TYPE_ARRAY:
 		if data[0] == "Layer":
-			var curr_layer: BaseLayer = Global.current_project.layers[layer]
-			var drag_layer: BaseLayer = Global.current_project.layers[data[1]]
+			var drag_layer: BaseLayer = Global.current_project.layers[data[1]] # TODO: Simplfiy this (can probably just drop the layer, though consider if it would be good for when multiple drag is implmented)
 
-			if curr_layer == drag_layer:
+			if layer == drag_layer:
 				Global.animation_timeline.drag_highlight.visible = false
 				return false
 
 			var region: Rect2
-			var depth: int = Global.current_project.layers[layer].get_hierarchy_depth()
+			var depth: int = layer.get_hierarchy_depth()
 
 			if Input.is_action_pressed("ctrl"):  # Swap layers
-				if drag_layer.is_a_parent_of(curr_layer) or curr_layer.is_a_parent_of(drag_layer):
+				if drag_layer.is_a_parent_of(layer) or layer.is_a_parent_of(drag_layer):
 					Global.animation_timeline.drag_highlight.visible = false
 					return false
 				region = get_global_rect()
 
 			else:  # Shift layers
-				if drag_layer.is_a_parent_of(curr_layer):
+				if drag_layer.is_a_parent_of(layer):
 					Global.animation_timeline.drag_highlight.visible = false
 					return false
 				# If accepted as a child, is it in the center region?
 				if (
-					Global.current_project.layers[layer].accepts_child(data[1])
+					layer.accepts_child(data[1]) # TODO: This this correct? Shouldn't it be drag_layer?
 					and _get_region_rect(0.25, 0.75).has_point(get_global_mouse_position())
 				):
 					# Drawn regions are adusted a bit from actual to clearify drop position
@@ -250,7 +248,7 @@ func can_drop_data(_pos, data) -> bool:
 
 
 func drop_data(_pos, data) -> void:
-	var drop_layer: int = data[1]
+	var drop_layer: int = data[1] # TODO: Should this be changed to the class?
 	var project = Global.current_project
 
 	project.undo_redo.create_action("Change Layer Order")
@@ -267,7 +265,7 @@ func drop_data(_pos, data) -> void:
 	if Input.is_action_pressed("ctrl"):  # Swap layers
 		# a and b both need "from", "to", and "to_parents"
 		# a is this layer (and children), b is the dropped layers
-		var a := {"from": range(layer - layers[layer].get_child_count(true), layer + 1)}
+		var a := {"from": range(layer.index - layer.get_child_count(true), layer.index + 1)}
 		var b := {"from": drop_from_indices}
 
 		if a.from[0] < b.from[0]:
@@ -281,7 +279,7 @@ func drop_data(_pos, data) -> void:
 		for l in a.from:
 			a_from_parents.append(layers[l].parent)
 
-		# to_parents starts as a dulpicate of from_parents, set the root layer's (with one layer or
+		# to_parents starts as a duplicate of from_parents, set the root layer's (with one layer or
 		# group with its children, this will always be the last layer [-1]) parent to the other
 		# root layer's parent
 		a["to_parents"] = a_from_parents.duplicate()
@@ -303,28 +301,28 @@ func drop_data(_pos, data) -> void:
 
 		# If accepted as a child, is it in the center region?
 		if (
-			layers[layer].accepts_child(data[1])
+			layer.accepts_child(data[1]) # TODO: Again, shouldn't this be the class right?
 			and _get_region_rect(0.25, 0.75).has_point(get_global_mouse_position())
 		):
-			to_index = layer
-			to_parent = layers[layer]
+			to_index = layer.index
+			to_parent = layer
 		else:
 			# Top or bottom region?
 			if _get_region_rect(0, 0.5).has_point(get_global_mouse_position()):
-				to_index = layer + 1
-				to_parent = layers[layer].parent
+				to_index = layer.index + 1
+				to_parent = layer.parent
 			else:
 				# Place under the layer, if it has children, place after its lowest child
-				if layers[layer].has_children():
-					to_index = layers[layer].get_children(true)[0].index
+				if layer.has_children():
+					to_index = layer.get_children(true)[0].index
 
-					if layers[layer].is_a_parent_of(layers[drop_layer]):
+					if layer.is_a_parent_of(layers[drop_layer]):
 						to_index += drop_from_indices.size()
 				else:
-					to_index = layer
-				to_parent = layers[layer].parent
+					to_index = layer.index
+				to_parent = layer.parent
 
-		if drop_layer < layer:
+		if drop_layer < layer.index:
 			to_index -= drop_from_indices.size()
 
 		var drop_to_indices := range(to_index, to_index + drop_from_indices.size())
@@ -339,7 +337,7 @@ func drop_data(_pos, data) -> void:
 			project, "move_layers", drop_to_indices, drop_from_indices, drop_from_parents
 		)
 	if project.current_layer == drop_layer:
-		project.undo_redo.add_do_property(project, "current_layer", layer)
+		project.undo_redo.add_do_property(project, "current_layer", layer.index)
 	else:
 		project.undo_redo.add_do_property(project, "current_layer", project.current_layer)
 	project.undo_redo.add_undo_property(project, "current_layer", project.current_layer)

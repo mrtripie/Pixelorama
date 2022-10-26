@@ -38,4 +38,6 @@ func accepts_child(_layer: BaseLayer) -> bool:
 
 
 func instantiate_layer_button() -> Node:
-	return Global.group_layer_button_node.instance()
+	var layer_button = Global.group_layer_button_node.instance()
+	layer_button.layer = self
+	return layer_button

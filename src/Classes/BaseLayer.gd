@@ -4,7 +4,7 @@ extends Reference
 
 var name := ""
 var project
-var index: int
+var index := 0
 var parent: BaseLayer
 var visible := true
 var locked := false
@@ -83,44 +83,6 @@ func get_layer_path() -> String:
 	return name
 
 
-# Links a cel to link_set if its a Dictionary, or unlinks if null.
-# Content/image_texture are handled seperately for undo related reasons
-func link_cel(cel: BaseCel, link_set = null) -> void:
-	# Erase from the cel's current link_set
-	if cel.link_set != null:
-		if cel.link_set.has("cels"):
-			cel.link_set["cels"].erase(cel)
-			if cel.link_set["cels"].empty():
-				cel_link_sets.erase(cel.link_set)
-		else:
-			cel_link_sets.erase(cel.link_set)
-	# Add to link_set
-	cel.link_set = link_set
-	if link_set != null:
-		if not link_set.has("cels"):
-			link_set["cels"] = []
-		link_set["cels"].append(cel)
-		if not cel_link_sets.has(link_set):
-			if not link_set.has("hue"):
-				var hues := PoolRealArray()
-				for other_link_set in cel_link_sets:
-					hues.append(other_link_set["hue"])
-				if hues.empty():
-					link_set["hue"] = Color.green.h
-				else:  # Calculate the largest gap in hue between existing link sets:
-					hues.sort()
-					# Start gap between the highest and lowest hues, otherwise its hard to include
-					var largest_gap_pos := hues[-1]
-					var largest_gap_size := 1.0 - (hues[-1] - hues[0])
-					for h in hues.size() - 1:
-						var gap_size: float = hues[h + 1] - hues[h]
-						if gap_size > largest_gap_size:
-							largest_gap_pos = hues[h]
-							largest_gap_size = gap_size
-					link_set["hue"] = wrapf(largest_gap_pos + largest_gap_size / 2.0, 0, 1)
-			cel_link_sets.append(link_set)
-
-
 # Methods to Override:
 
 
@@ -156,15 +118,15 @@ func deserialize(dict: Dictionary) -> void:
 		for serialized_link_set in dict["link_sets"]:
 			var link_set := {"cels": [], "hue": serialized_link_set["hue"]}
 			for linked_cel_index in serialized_link_set["cels"]:
-				var cel: BaseCel = project.frames[linked_cel_index].cels[index]
+				var cel = project.frames[linked_cel_index].cels[index]
 				link_set["cels"].append(cel)
 				cel.link_set = link_set
-				var linked_cel: BaseCel = link_set["cels"][0]
+				var linked_cel = link_set["cels"][0]
 				cel.set_content(linked_cel.get_content(), linked_cel.image_texture)
 			cel_link_sets.append(link_set)
 
 
-func new_empty_cel() -> BaseCel:
+func new_empty_cel():  # -> BaseCel
 	return null
 
 

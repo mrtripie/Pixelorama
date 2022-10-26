@@ -34,4 +34,6 @@ func can_layer_get_drawn() -> bool:
 
 
 func instantiate_layer_button() -> Node:
-	return Global.pixel_layer_button_node.instance()
+	var layer_button = Global.pixel_layer_button_node.instance()
+	layer_button.layer = self
+	return layer_button

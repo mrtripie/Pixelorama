@@ -2,8 +2,6 @@ extends Button
 
 enum MenuOptions { DELETE, LINK, UNLINK, PROPERTIES }
 
-var frame := 0
-var layer := 0
 var cel: BaseCel
 
 onready var popup_menu: PopupMenu = get_node_or_null("PopupMenu")
@@ -18,8 +16,7 @@ func button_setup() -> void:
 	rect_min_size.x = Global.animation_timeline.cel_size
 	rect_min_size.y = Global.animation_timeline.cel_size
 
-	hint_tooltip = tr("Frame: %s, Layer: %s") % [frame + 1, layer]
-	cel = Global.current_project.frames[frame].cels[layer]
+	hint_tooltip = tr("Frame: %s, Layer: %s") % [cel.frame.index + 1, cel.layer.index]
 	$CelTexture.texture = cel.image_texture
 	if is_instance_valid(linked_indicator):
 		linked_indicator.visible = cel.link_set != null
@@ -51,19 +48,19 @@ func _on_CelButton_pressed() -> void:
 		var prev_curr_layer: int = project.current_layer
 
 		if Input.is_action_pressed("shift"):
-			var frame_diff_sign = sign(frame - prev_curr_frame)
+			var frame_diff_sign = sign(cel.frame.index - prev_curr_frame)
 			if frame_diff_sign == 0:
 				frame_diff_sign = 1
-			var layer_diff_sign = sign(layer - prev_curr_layer)
+			var layer_diff_sign = sign(cel.layer.index - prev_curr_layer)
 			if layer_diff_sign == 0:
 				layer_diff_sign = 1
-			for i in range(prev_curr_frame, frame + frame_diff_sign, frame_diff_sign):
-				for j in range(prev_curr_layer, layer + layer_diff_sign, layer_diff_sign):
+			for i in range(prev_curr_frame, cel.frame.index + frame_diff_sign, frame_diff_sign):
+				for j in range(prev_curr_layer, cel.layer.index + layer_diff_sign, layer_diff_sign):
 					var frame_layer := [i, j]
 					if !project.selected_cels.has(frame_layer):
 						project.selected_cels.append(frame_layer)
 		elif Input.is_action_pressed("ctrl"):
-			var frame_layer := [frame, layer]
+			var frame_layer := [cel.frame.index, cel.layer.index]
 			if project.selected_cels.has(frame_layer):
 				if project.selected_cels.size() > 1:
 					project.selected_cels.erase(frame_layer)
@@ -72,13 +69,13 @@ func _on_CelButton_pressed() -> void:
 				project.selected_cels.append(frame_layer)
 		else:  # If the button is pressed without Shift or Control
 			project.selected_cels.clear()
-			var frame_layer := [frame, layer]
+			var frame_layer := [cel.frame.index, cel.layer.index]
 			if !project.selected_cels.has(frame_layer):
 				project.selected_cels.append(frame_layer)
 
 		if change_cel:
-			project.current_frame = frame
-			project.current_layer = layer
+			project.current_frame = cel.frame.index
+			project.current_layer = cel.layer.index
 		else:
 			project.current_frame = project.selected_cels[0][0]
 			project.current_layer = project.selected_cels[0][1]
@@ -105,18 +102,16 @@ func _on_PopupMenu_id_pressed(id: int) -> void:
 			if id == MenuOptions.UNLINK:
 				project.undo_redo.create_action("Unlink Cel")
 				var selected_cels = project.selected_cels.duplicate()
-				if not selected_cels.has([frame, layer]):
-					selected_cels.append([frame, layer])  # Include this cel with the selected ones
+				if not selected_cels.has([cel.frame.index, cel.layer.index]):
+					selected_cels.append([cel.frame.index, cel.layer.index])  # Include this cel with the selected ones
 				for cel_index in selected_cels:
-					if layer != cel_index[1]:  # Skip selected cels not on the same layer
+					if cel.layer.index != cel_index[1]:  # Skip selected cels not on the same layer
 						continue
 					var s_cel: BaseCel = project.frames[cel_index[0]].cels[cel_index[1]]
 					if s_cel.link_set == null:  # Skip cels that aren't linked
 						continue
-					project.undo_redo.add_do_method(project.layers[layer], "link_cel", s_cel, null)
-					project.undo_redo.add_undo_method(
-						project.layers[layer], "link_cel", s_cel, s_cel.link_set
-					)
+					project.undo_redo.add_do_method(s_cel, "link",  null)
+					project.undo_redo.add_undo_method(s_cel, "link",  s_cel.link_set)
 					if s_cel.link_set.size() > 1:  # Skip copying content if not linked to another
 						project.undo_redo.add_do_method(
 							s_cel, "set_content", s_cel.copy_content(), ImageTexture.new()
@@ -129,25 +124,19 @@ func _on_PopupMenu_id_pressed(id: int) -> void:
 				project.undo_redo.create_action("Link Cel")
 				var link_set: Dictionary = {} if cel.link_set == null else cel.link_set
 				if cel.link_set == null:
-					project.undo_redo.add_do_method(
-						project.layers[layer], "link_cel", cel, link_set
-					)
-					project.undo_redo.add_undo_method(project.layers[layer], "link_cel", cel, null)
+					project.undo_redo.add_do_method(cel, "link", link_set)
+					project.undo_redo.add_undo_method(cel, "link", null)
 
 				for cel_index in project.selected_cels:
-					if layer != cel_index[1]:  # Skip selected cels not on the same layer
+					if cel.layer.index != cel_index[1]:  # Skip selected cels not on the same layer
 						continue
 					var s_cel: BaseCel = project.frames[cel_index[0]].cels[cel_index[1]]
 					if cel == s_cel:  # Don't need to link cel to itself
 						continue
 					if s_cel.link_set == link_set:  # Skip cels that were already linked
 						continue
-					project.undo_redo.add_do_method(
-						project.layers[layer], "link_cel", s_cel, link_set
-					)
-					project.undo_redo.add_undo_method(
-						project.layers[layer], "link_cel", s_cel, s_cel.link_set
-					)
+					project.undo_redo.add_do_method(s_cel, "link", link_set)
+					project.undo_redo.add_undo_method(s_cel, "link", s_cel.link_set)
 					project.undo_redo.add_do_method(
 						s_cel, "set_content", cel.get_content(), cel.image_texture
 					)
@@ -155,21 +144,24 @@ func _on_PopupMenu_id_pressed(id: int) -> void:
 						s_cel, "set_content", s_cel.get_content(), s_cel.image_texture
 					)
 
+			# TODO: A signal could be added to BaseCel that would allow it to call button_setup from link
+			#		(This may also bake it so that cel buttons don't need to have button_setup called when
+			#		addding/remoing/moving_layers/frames/cels
 			# Remove and add a new cel button to update appearance (can't use button_setup
 			# because there is no guarantee that it will be the exact same cel button instance)
 			# May be able to use button_setup with a lambda to find correct cel button in Godot 4
 			for f in project.frames.size():
 				project.undo_redo.add_do_method(
-					Global.animation_timeline, "project_cel_removed", f, layer
+					Global.animation_timeline, "project_cel_removed", f, cel.layer.index
 				)
 				project.undo_redo.add_undo_method(
-					Global.animation_timeline, "project_cel_removed", f, layer
+					Global.animation_timeline, "project_cel_removed", f, cel.layer.index
 				)
 				project.undo_redo.add_do_method(
-					Global.animation_timeline, "project_cel_added", f, layer
+					Global.animation_timeline, "project_cel_added", f, cel.layer.index
 				)
 				project.undo_redo.add_undo_method(
-					Global.animation_timeline, "project_cel_added", f, layer
+					Global.animation_timeline, "project_cel_added", f, cel.layer.index
 				)
 
 			project.undo_redo.add_do_method(Global, "undo_or_redo", false)
@@ -190,8 +182,8 @@ func _delete_cel_content() -> void:
 		for linked_cel in cel.link_set["cels"]:
 			project.undo_redo.add_do_method(linked_cel, "set_content", empty_content)
 			project.undo_redo.add_undo_method(linked_cel, "set_content", old_content)
-	project.undo_redo.add_do_method(Global, "undo_or_redo", false, frame, layer, project)
-	project.undo_redo.add_undo_method(Global, "undo_or_redo", true, frame, layer, project)
+	project.undo_redo.add_do_method(Global, "undo_or_redo", false, cel.frame.index, cel.layer.index, project)
+	project.undo_redo.add_undo_method(Global, "undo_or_redo", true, cel.frame.index, cel.layer.index, project)
 	project.undo_redo.commit_action()
 
 
@@ -207,7 +199,7 @@ func get_drag_data(_position) -> Array:
 	button.add_child(texture_rect)
 	set_drag_preview(button)
 
-	return ["Cel", frame, layer]
+	return ["Cel", cel.frame.index, cel.layer.index] # TODO: would it be an improvement to just give the class instead of the frame and layer index?
 
 
 func can_drop_data(_pos, data) -> bool:
@@ -215,17 +207,17 @@ func can_drop_data(_pos, data) -> bool:
 	if typeof(data) == TYPE_ARRAY and data[0] == "Cel":
 		var drag_frame = data[1]
 		var drag_layer = data[2]
-		if project.layers[drag_layer].get_script() == project.layers[layer].get_script():
+		if project.layers[drag_layer].get_script() == project.layers[cel.layer.index].get_script():
 			if (  # If both cels are on the same layer, or both are not linked
-				drag_layer == layer
+				drag_layer == cel.layer.index
 				or (
-					project.frames[frame].cels[layer].link_set == null
-					and project.frames[drag_frame].cels[drag_layer].link_set == null
+					cel.link_set == null
+					and project.frames[drag_frame].cels[drag_layer].link_set == null # TODO: If we send the class ref, this can become just drag_cel
 				)
 			):
-				if not (drag_frame == frame and drag_layer == layer):
+				if not (drag_frame == cel.frame.index and drag_layer == cel.layer.index):
 					var region: Rect2
-					if Input.is_action_pressed("ctrl") or layer != drag_layer:  # Swap cels
+					if Input.is_action_pressed("ctrl") or cel.layer.index != drag_layer:  # Swap cels
 						region = get_global_rect()
 					else:  # Move cels
 						if _get_region_rect(0, 0.5).has_point(get_global_mouse_position()):  # Left
@@ -249,24 +241,24 @@ func drop_data(_pos, data) -> void:
 	var project = Global.current_project
 
 	project.undo_redo.create_action("Move Cels")
-	if Input.is_action_pressed("ctrl") or layer != drop_layer:  # Swap cels
-		project.undo_redo.add_do_method(project, "swap_cel", frame, layer, drop_frame, drop_layer)
-		project.undo_redo.add_undo_method(project, "swap_cel", frame, layer, drop_frame, drop_layer)
+	if Input.is_action_pressed("ctrl") or cel.layer.index != drop_layer:  # Swap cels
+		project.undo_redo.add_do_method(project, "swap_cel", cel.frame.index, cel.layer.index, drop_frame, drop_layer)
+		project.undo_redo.add_undo_method(project, "swap_cel", cel.frame.index, cel.layer.index, drop_frame, drop_layer)
 	else:  # Move cels
 		var to_frame: int
 		if _get_region_rect(0, 0.5).has_point(get_global_mouse_position()):  # Left
-			to_frame = frame
+			to_frame = cel.frame.index
 		else:  # Right
-			to_frame = frame + 1
-		if drop_frame < frame:
+			to_frame = cel.frame.index + 1
+		if drop_frame < cel.frame.index:
 			to_frame -= 1
-		project.undo_redo.add_do_method(project, "move_cel", drop_frame, to_frame, layer)
-		project.undo_redo.add_undo_method(project, "move_cel", to_frame, drop_frame, layer)
+		project.undo_redo.add_do_method(project, "move_cel", drop_frame, to_frame, cel.layer.index)
+		project.undo_redo.add_undo_method(project, "move_cel", to_frame, drop_frame, cel.layer.index)
 
-	project.undo_redo.add_do_property(project, "current_layer", layer)
+	project.undo_redo.add_do_property(project, "current_layer", cel.layer.index)
 	project.undo_redo.add_undo_property(project, "current_layer", project.current_layer)
-	if frame != drop_frame:  # If the cel moved to a different frame
-		project.undo_redo.add_do_property(project, "current_frame", frame)
+	if cel.frame.index != drop_frame:  # If the cel moved to a different frame
+		project.undo_redo.add_do_property(project, "current_frame", cel.frame.index)
 		project.undo_redo.add_undo_property(project, "current_frame", project.current_frame)
 	project.undo_redo.add_undo_method(Global, "undo_or_redo", true)
 	project.undo_redo.add_do_method(Global, "undo_or_redo", false)

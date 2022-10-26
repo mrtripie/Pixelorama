@@ -18,4 +18,6 @@ func get_image() -> Image:
 
 
 func instantiate_cel_button() -> Node:
-	return Global.group_cel_button_node.instance()
+	var cel_button = Global.group_cel_button_node.instance()
+	cel_button.cel = self
+	return cel_button

@@ -352,7 +352,7 @@ func deserialize(dict: Dictionary) -> void:
 			for cel in frame.cels:
 				match int(dict.layers[cel_i].get("type", Global.LayerTypes.PIXEL)):
 					Global.LayerTypes.PIXEL:
-						cels.append(PixelCel.new(Image.new(), cel.opacity))
+						cels.append(PixelCel.new(Image.new(), cel.opacity)) # TODO: For adding layer in the constructor, will need to do the layer loop before
 					Global.LayerTypes.GROUP:
 						cels.append(GroupCel.new(cel.opacity))
 				_deserialize_metadata(cels[cel_i], cel)
@@ -643,13 +643,14 @@ func add_frames(new_frames: Array, indices: Array) -> void:  # indices should be
 		Global.animation_timeline.project_frame_added(indices[i])
 	# Update the frames and frame buttons:
 	for f in frames.size():
-		Global.frame_hbox.get_child(f).frame = f
+		Global.frame_hbox.get_child(f).frame = f # TODO Remove
+		frames[f].index = f
 		Global.frame_hbox.get_child(f).text = str(f + 1)
 	# Update the cel buttons:
 	for l in layers.size():
 		var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - l)
 		for f in frames.size():
-			cel_hbox.get_child(f).frame = f
+			cel_hbox.get_child(f).frame = f # TODO: Remove
 			cel_hbox.get_child(f).button_setup()
 	_set_timeline_first_and_last_frames()
 
@@ -671,13 +672,14 @@ func remove_frames(indices: Array) -> void:  # indices should be in ascending or
 		Global.animation_timeline.project_frame_removed(indices[i] - i)
 	# Update the frames and frame buttons:
 	for f in frames.size():
-		Global.frame_hbox.get_child(f).frame = f
+		Global.frame_hbox.get_child(f).frame = f # TODO Remove
+		frames[f].index = f
 		Global.frame_hbox.get_child(f).text = str(f + 1)
 	# Update the cel buttons:
 	for l in layers.size():
 		var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - l)
 		for f in frames.size():
-			cel_hbox.get_child(f).frame = f
+			cel_hbox.get_child(f).frame = f # TODO: Remove
 			cel_hbox.get_child(f).button_setup()
 	_set_timeline_first_and_last_frames()
 
@@ -692,13 +694,14 @@ func move_frame(from_index: int, to_index: int) -> void:
 	Global.animation_timeline.project_frame_added(to_index)
 	# Update the frames and frame buttons:
 	for f in frames.size():
-		Global.frame_hbox.get_child(f).frame = f
+		Global.frame_hbox.get_child(f).frame = f # TODO Remove
+		frames[f].index = f
 		Global.frame_hbox.get_child(f).text = str(f + 1)
 	# Update the cel buttons:
 	for l in layers.size():
 		var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - l)
 		for f in frames.size():
-			cel_hbox.get_child(f).frame = f
+			cel_hbox.get_child(f).frame = f # TODO: Remove
 			cel_hbox.get_child(f).button_setup()
 	_set_timeline_first_and_last_frames()
 
@@ -731,7 +734,7 @@ func add_layers(new_layers: Array, indices: Array, cels: Array) -> void:  # cels
 		Global.layer_vbox.get_child(layers.size() - 1 - l).layer = l
 		var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - l)
 		for f in frames.size():
-			cel_hbox.get_child(f).layer = l
+			cel_hbox.get_child(f).layer = l # TODO: Remove
 			cel_hbox.get_child(f).button_setup()
 	toggle_layer_buttons()
 
@@ -751,7 +754,7 @@ func remove_layers(indices: Array) -> void:
 		Global.layer_vbox.get_child(layers.size() - 1 - l).layer = l
 		var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - l)
 		for f in frames.size():
-			cel_hbox.get_child(f).layer = l
+			cel_hbox.get_child(f).layer = l # TODO: Remove
 			cel_hbox.get_child(f).button_setup()
 	toggle_layer_buttons()
 
@@ -782,7 +785,7 @@ func move_layers(from_indices: Array, to_indices: Array, to_parents: Array) -> v
 		Global.layer_vbox.get_child(layers.size() - 1 - l).layer = l
 		var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - l)
 		for f in frames.size():
-			cel_hbox.get_child(f).layer = l
+			cel_hbox.get_child(f).layer = l # TODO: Remove
 			cel_hbox.get_child(f).button_setup()
 	toggle_layer_buttons()
 
@@ -830,7 +833,7 @@ func swap_layers(a: Dictionary, b: Dictionary) -> void:
 		Global.layer_vbox.get_child(layers.size() - 1 - l).layer = l
 		var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - l)
 		for f in frames.size():
-			cel_hbox.get_child(f).layer = l
+			cel_hbox.get_child(f).layer = l # TODO: Remove
 			cel_hbox.get_child(f).button_setup()
 	toggle_layer_buttons()
 
@@ -840,10 +843,10 @@ func move_cel(from_frame: int, to_frame: int, layer: int) -> void:
 	selected_cels.clear()
 	var cel: BaseCel = frames[from_frame].cels[layer]
 	if from_frame < to_frame:
-		for f in range(from_frame, to_frame):  # Forward range
+		for f in range(from_frame, to_frame):  # Loop forwards
 			frames[f].cels[layer] = frames[f + 1].cels[layer]  # Move left
 	else:
-		for f in range(from_frame, to_frame, -1):  # Backward range
+		for f in range(from_frame, to_frame, -1):  # Loop backwards
 			frames[f].cels[layer] = frames[f - 1].cels[layer]  # Move right
 	frames[to_frame].cels[layer] = cel
 	Global.animation_timeline.project_cel_removed(from_frame, layer)
@@ -852,7 +855,8 @@ func move_cel(from_frame: int, to_frame: int, layer: int) -> void:
 	# Update the cel buttons for this layer:
 	var cel_hbox: HBoxContainer = Global.cel_vbox.get_child(layers.size() - 1 - layer)
 	for f in frames.size():
-		cel_hbox.get_child(f).frame = f
+		frames[f].cels[layer].frame = frames[f]
+		cel_hbox.get_child(f).frame = f # TODO: Remove
 		cel_hbox.get_child(f).button_setup()
 
 
@@ -862,6 +866,11 @@ func swap_cel(a_frame: int, a_layer: int, b_frame: int, b_layer: int) -> void:
 	var temp: BaseCel = frames[a_frame].cels[a_layer]
 	frames[a_frame].cels[a_layer] = frames[b_frame].cels[b_layer]
 	frames[b_frame].cels[b_layer] = temp
+	# Update the cels' frame and layer references:
+	frames[a_frame].cels[a_layer].frame = frames[a_frame]
+	frames[a_frame].cels[a_layer].layer = layers[a_layer]
+	frames[b_frame].cels[b_layer].frame = frames[b_frame]
+	frames[b_frame].cels[b_layer].layer = layers[b_layer]
 	Global.animation_timeline.project_cel_removed(a_frame, a_layer)
 	Global.animation_timeline.project_cel_added(a_frame, a_layer)
 	Global.animation_timeline.project_cel_removed(b_frame, b_layer)

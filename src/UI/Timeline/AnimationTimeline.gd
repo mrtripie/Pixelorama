@@ -128,10 +128,8 @@ func add_frame() -> void:
 			var prev_cel: BaseCel = project.frames[project.current_frame].cels[l]
 			if prev_cel.link_set == null:
 				prev_cel.link_set = {}
-				project.undo_redo.add_do_method(
-					project.layers[l], "link_cel", prev_cel, prev_cel.link_set
-				)
-				project.undo_redo.add_undo_method(project.layers[l], "link_cel", prev_cel, null)
+				project.undo_redo.add_do_method(prev_cel, "link", prev_cel.link_set)
+				project.undo_redo.add_undo_method(prev_cel, "link", null)
 			frame.cels[l].set_content(prev_cel.get_content(), prev_cel.image_texture)
 			frame.cels[l].link_set = prev_cel.link_set
 
@@ -278,10 +276,8 @@ func copy_frames(indices := []) -> void:
 			if project.layers[l].new_cels_linked:
 				if src_cel.link_set == null:
 					src_cel.link_set = {}
-					project.undo_redo.add_do_method(
-						project.layers[l], "link_cel", src_cel, src_cel.link_set
-					)
-					project.undo_redo.add_undo_method(project.layers[l], "link_cel", src_cel, null)
+					project.undo_redo.add_do_method(src_cel, "link", src_cel.link_set)
+					project.undo_redo.add_undo_method(src_cel, "link", null)
 				new_cel.set_content(src_cel.get_content(), src_cel.image_texture)
 				new_cel.link_set = src_cel.link_set
 			else:
@@ -777,10 +773,8 @@ func _on_MergeDownLayer_pressed() -> void:
 			and not top_image.is_invisible()
 		):
 			# Unlink cel:
-			project.undo_redo.add_do_method(bottom_layer, "link_cel", bottom_cel, null)
-			project.undo_redo.add_undo_method(
-				bottom_layer, "link_cel", bottom_cel, bottom_cel.link_set
-			)
+			project.undo_redo.add_do_method(bottom_cel, "link", null)
+			project.undo_redo.add_undo_method(bottom_cel, "link", bottom_cel.link_set)
 			project.undo_redo.add_do_property(bottom_cel, "image_texture", ImageTexture.new())
 			project.undo_redo.add_undo_property(
 				bottom_cel, "image_texture", bottom_cel.image_texture
@@ -884,15 +878,12 @@ func project_layer_added(layer: int) -> void:
 	var project: Project = Global.current_project
 
 	var layer_button: LayerButton = project.layers[layer].instantiate_layer_button()
-	layer_button.layer = layer
 	if project.layers[layer].name == "":
 		project.layers[layer].set_name_to_default(Global.current_project.layers.size())
 
 	var cel_hbox := HBoxContainer.new()
 	for f in project.frames.size():
 		var cel_button = project.frames[f].cels[layer].instantiate_cel_button()
-		cel_button.frame = f
-		cel_button.layer = layer
 		cel_hbox.add_child(cel_button)
 
 	layer_button.visible = Global.current_project.layers[layer].is_expanded_in_hierarchy()

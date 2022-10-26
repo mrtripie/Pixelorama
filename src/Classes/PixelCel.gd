@@ -6,7 +6,7 @@ extends BaseCel
 
 var image: Image setget image_changed
 
-
+# TODO: Will need to look into changes to _init (perhaps just layer will be good enough? or frame too?)
 func _init(_image := Image.new(), _opacity := 1.0, _image_texture: ImageTexture = null) -> void:
 	if _image_texture:
 		image_texture = _image_texture
@@ -70,4 +70,5 @@ func load_image_data_from_pxo(file: File, project_size: Vector2) -> void:
 
 func instantiate_cel_button() -> Node:
 	var cel_button = Global.pixel_cel_button_node.instance()
+	cel_button.cel = self
 	return cel_button

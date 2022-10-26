@@ -475,12 +475,8 @@ func open_image_as_spritesheet_layer(
 					var prev_cel: BaseCel = project.frames[project.current_frame].cels[l]
 					if prev_cel.link_set == null:
 						prev_cel.link_set = {}
-						project.undo_redo.add_do_method(
-							project.layers[l], "link_cel", prev_cel, prev_cel.link_set
-						)
-						project.undo_redo.add_undo_method(
-							project.layers[l], "link_cel", prev_cel, null
-						)
+						project.undo_redo.add_do_method(prev_cel, "link", prev_cel.link_set)
+						project.undo_redo.add_undo_method(prev_cel, "link", null)
 					new_frame.cels[l].set_content(prev_cel.get_content(), prev_cel.image_texture)
 					new_frame.cels[l].link_set = prev_cel.link_set
 			frames.append(new_frame)
