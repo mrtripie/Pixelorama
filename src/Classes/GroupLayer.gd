@@ -25,8 +25,8 @@ func deserialize(dict: Dictionary) -> void:
 	expanded = dict.expanded
 
 
-func new_empty_cel() -> BaseCel:
-	return GroupCel.new()
+func new_empty_cel(frame: Frame) -> BaseCel:
+	return GroupCel.new(frame, self)
 
 
 func set_name_to_default(number: int) -> void:

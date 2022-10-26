@@ -116,7 +116,7 @@ func new_empty_frame() -> Frame:
 	var frame := Frame.new()
 	var bottom_layer := true
 	for l in layers:  # Create as many cels as there are layers
-		var cel: BaseCel = l.new_empty_cel()
+		var cel: BaseCel = l.new_empty_cel(frame)
 		if cel is PixelCel and bottom_layer and fill_color.a > 0:
 			cel.image.fill(fill_color)
 		frame.cels.append(cel)
@@ -345,29 +345,6 @@ func deserialize(dict: Dictionary) -> void:
 	if dict.has("save_path"):
 		OpenSave.current_save_paths[Global.projects.find(self)] = dict.save_path
 	if dict.has("frames") and dict.has("layers"):
-		var frame_i := 0
-		for frame in dict.frames:
-			var cels := []
-			var cel_i := 0
-			for cel in frame.cels:
-				match int(dict.layers[cel_i].get("type", Global.LayerTypes.PIXEL)):
-					Global.LayerTypes.PIXEL:
-						cels.append(PixelCel.new(Image.new(), cel.opacity)) # TODO: For adding layer in the constructor, will need to do the layer loop before
-					Global.LayerTypes.GROUP:
-						cels.append(GroupCel.new(cel.opacity))
-				_deserialize_metadata(cels[cel_i], cel)
-				cel_i += 1
-			var duration := 1.0
-			if frame.has("duration"):
-				duration = frame.duration
-			elif dict.has("frame_duration"):
-				duration = dict.frame_duration[frame_i]
-
-			var frame_class := Frame.new(cels, duration)
-			_deserialize_metadata(frame_class, frame)
-			frames.append(frame_class)
-			frame_i += 1
-
 		for saved_layer in dict.layers:
 			match int(saved_layer.get("type", Global.LayerTypes.PIXEL)):
 				Global.LayerTypes.PIXEL:
@@ -380,6 +357,28 @@ func deserialize(dict: Dictionary) -> void:
 			layers[layer_i].index = layer_i
 			layers[layer_i].deserialize(dict.layers[layer_i])
 			_deserialize_metadata(layers[layer_i], dict.layers[layer_i])
+
+		var frame_i := 0
+		for frame in dict.frames:
+			var cels := []
+			var duration := 1.0
+			if frame.has("duration"):
+				duration = frame.duration
+			elif dict.has("frame_duration"):
+				duration = dict.frame_duration[frame_i]
+			var frame_class := Frame.new(cels, duration) # TODO: assinging cels array should work here, but make sure
+			var cel_i := 0
+			for cel in frame.cels:
+				match int(dict.layers[cel_i].get("type", Global.LayerTypes.PIXEL)):
+					Global.LayerTypes.PIXEL:
+						cels.append(PixelCel.new(frame_class, layers[cel_i], Image.new(), cel.opacity))
+					Global.LayerTypes.GROUP:
+						cels.append(GroupCel.new(frame_class, layers[cel_i], cel.opacity))
+				_deserialize_metadata(cels[cel_i], cel)
+				cel_i += 1
+			_deserialize_metadata(frame_class, frame)
+			frames.append(frame_class)
+			frame_i += 1
 	if dict.has("tags"):
 		for tag in dict.tags:
 			animation_tags.append(AnimationTag.new(tag.name, Color(tag.color), tag.from, tag.to))

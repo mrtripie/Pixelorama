@@ -227,7 +227,8 @@ func open_old_pxo_file(file: File, new_project: Project, first_line: String) -> 
 				cel_opacity = file.get_float()
 			var image := Image.new()
 			image.create_from_data(width, height, false, Image.FORMAT_RGBA8, buffer)
-			frame_class.cels.append(PixelCel.new(image, cel_opacity))
+			# TODO: Not sure if this line is right?
+			frame_class.cels.append(PixelCel.new(frame_class, new_project.layers[layer_i], image, cel_opacity))
 			layer_i += 1
 			layer_line = file.get_line()
 
@@ -405,12 +406,13 @@ func save_pxo_file(
 
 func open_image_as_new_tab(path: String, image: Image) -> void:
 	var project := Project.new([], path.get_file(), image.get_size())
-	project.layers.append(PixelLayer.new(project))
+	var layer := PixelLayer.new(project)
+	project.layers.append(layer)
 	Global.projects.append(project)
 
 	var frame := Frame.new()
 	image.convert(Image.FORMAT_RGBA8)
-	frame.cels.append(PixelCel.new(image, 1))
+	frame.cels.append(PixelCel.new(frame, layer, image, 1))
 
 	project.frames.append(frame)
 	set_new_imported_tab(project, path)
@@ -418,7 +420,8 @@ func open_image_as_new_tab(path: String, image: Image) -> void:
 
 func open_image_as_spritesheet_tab(path: String, image: Image, horiz: int, vert: int) -> void:
 	var project := Project.new([], path.get_file())
-	project.layers.append(PixelLayer.new(project))
+	var layer := PixelLayer.new(project)
+	project.layers.append(layer)
 	Global.projects.append(project)
 	horiz = min(horiz, image.get_size().x)
 	vert = min(vert, image.get_size().y)
@@ -433,7 +436,7 @@ func open_image_as_spritesheet_tab(path: String, image: Image, horiz: int, vert:
 			)
 			project.size = cropped_image.get_size()
 			cropped_image.convert(Image.FORMAT_RGBA8)
-			frame.cels.append(PixelCel.new(cropped_image, 1))
+			frame.cels.append(PixelCel.new(frame, layer, cropped_image, 1))
 			project.frames.append(frame)
 	set_new_imported_tab(project, path)
 
@@ -470,7 +473,7 @@ func open_image_as_spritesheet_layer(
 		for i in required_frames:
 			var new_frame := Frame.new()
 			for l in range(project.layers.size()):  # Create as many cels as there are layers
-				new_frame.cels.append(project.layers[l].new_empty_cel())
+				new_frame.cels.append(project.layers[l].new_empty_cel(new_frame))
 				if project.layers[l].new_cels_linked:
 					var prev_cel: BaseCel = project.frames[project.current_frame].cels[l]
 					if prev_cel.link_set == null:
@@ -495,9 +498,9 @@ func open_image_as_spritesheet_layer(
 			)
 			cropped_image.crop(project.size.x, project.size.y)
 			cropped_image.convert(Image.FORMAT_RGBA8)
-			cels.append(PixelCel.new(cropped_image))
+			cels.append(PixelCel.new(null, layer, cropped_image)) # TODO: null here should be OKAY (for now at least), but can it be assigned?
 		else:
-			cels.append(layer.new_empty_cel())
+			cels.append(layer.new_empty_cel(null)) # TODO: null here should be OKAY (for now at least), but can it be assigned?
 
 	project.undo_redo.add_do_property(project, "current_frame", new_frames_size - 1)
 	project.undo_redo.add_do_property(project, "current_layer", project.layers.size())
@@ -546,9 +549,9 @@ func open_image_as_new_frame(image: Image, layer_index := 0) -> void:
 	for i in project.layers.size():
 		if i == layer_index:
 			image.convert(Image.FORMAT_RGBA8)
-			frame.cels.append(PixelCel.new(image, 1))
+			frame.cels.append(PixelCel.new(frame, project.layers[i], image, 1))
 		else:
-			frame.cels.append(project.layers[i].new_empty_cel())
+			frame.cels.append(project.layers[i].new_empty_cel(frame))
 
 	project.undos += 1
 	project.undo_redo.create_action("Add Frame")
@@ -575,9 +578,9 @@ func open_image_as_new_layer(image: Image, file_name: String, frame_index := 0) 
 	for i in project.frames.size():
 		if i == frame_index:
 			image.convert(Image.FORMAT_RGBA8)
-			cels.append(PixelCel.new(image, 1))
+			cels.append(PixelCel.new(project.frames[i], layer, image, 1))
 		else:
-			cels.append(layer.new_empty_cel())
+			cels.append(layer.new_empty_cel(project.frames[i]))
 
 	project.undo_redo.add_do_property(project, "current_layer", project.layers.size())
 	project.undo_redo.add_do_method(project, "add_layers", [layer], [project.layers.size()], [cels])

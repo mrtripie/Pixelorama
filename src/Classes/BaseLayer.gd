@@ -126,7 +126,7 @@ func deserialize(dict: Dictionary) -> void:
 			cel_link_sets.append(link_set)
 
 
-func new_empty_cel():  # -> BaseCel
+func new_empty_cel(_frame: Frame):  # -> BaseCel
 	return null
 
 

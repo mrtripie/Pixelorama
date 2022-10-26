@@ -4,7 +4,9 @@ extends BaseCel
 # The term "cel" comes from "celluloid" (https://en.wikipedia.org/wiki/Cel).
 
 
-func _init(_opacity := 1.0) -> void:
+func _init(_frame: Frame, _layer: BaseLayer, _opacity := 1.0) -> void:
+	frame = _frame
+	layer = _layer
 	opacity = _opacity
 	image_texture = ImageTexture.new()
 

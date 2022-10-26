@@ -563,7 +563,7 @@ func add_layer(type: int) -> void:
 
 	var cels := []
 	for f in project.frames:
-		cels.append(l.new_empty_cel())
+		cels.append(l.new_empty_cel(project.frames[f]))
 
 	var new_layer_idx := project.current_layer + 1
 	if current_layer is GroupLayer:

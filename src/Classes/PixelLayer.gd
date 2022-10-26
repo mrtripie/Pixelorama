@@ -23,10 +23,10 @@ func deserialize(dict: Dictionary) -> void:
 	new_cels_linked = dict.new_cels_linked
 
 
-func new_empty_cel() -> BaseCel:
+func new_empty_cel(frame: Frame) -> BaseCel:
 	var image := Image.new()
 	image.create(project.size.x, project.size.y, false, Image.FORMAT_RGBA8)
-	return PixelCel.new(image)
+	return PixelCel.new(frame, self, image)
 
 
 func can_layer_get_drawn() -> bool:

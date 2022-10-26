@@ -7,7 +7,10 @@ extends BaseCel
 var image: Image setget image_changed
 
 # TODO: Will need to look into changes to _init (perhaps just layer will be good enough? or frame too?)
-func _init(_image := Image.new(), _opacity := 1.0, _image_texture: ImageTexture = null) -> void:
+# TODO: _image_texture argument doesn't appear to be used anywhere, so it can probably be removed.
+func _init(_frame: Frame, _layer: BaseLayer, _image := Image.new(), _opacity := 1.0, _image_texture: ImageTexture = null) -> void:
+	frame = _frame
+	layer = _layer
 	if _image_texture:
 		image_texture = _image_texture
 	else:
